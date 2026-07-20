@@ -4,13 +4,13 @@
 
 ### versión 1.0
 
-import os, subprocess, sys, time, json, pathlib, stat
+import os, subprocess, sys, time, json, pathlib
 
+# Obtener el usuario que llamo a sudo
+username = os.getenv("SUDO_USER") 
 ## Rutas generales
-username = os.environ.get("SUDO_USER") # Obtener el usuario que llamo a sudo
 fast_path = f"/home/{username}/.config/fastfetch"
 gtk_path = f"/home/{username}/.config/gtk-3.0"
-bg_path = f"/home/{username}/.config/backgrounds"
 
 # Obtener IDs de usuario (el que llamo a sudo)
 uid = int(os.getenv("SUDO_UID"))
@@ -89,7 +89,7 @@ girl_art = """
 packages_list = [
     "fastfetch",
     "xorg",
-    "lxqt-core",
+    "lxqt",
     "openbox",             
     "obconf",
     "lxterminal",
@@ -114,7 +114,9 @@ packages_list = [
     "lightdm",
     "lightdm-gtk-greeter",
     "lightdm-settings",
-    "zram-tools"
+    "zram-tools",
+    "htop",
+    "xterm"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -138,6 +140,7 @@ time.sleep(1.0)
 
 print("Configurando LightDM...")
 lightdm_conf = f"""[Seat:*]
+autologin-guest=false
 autologin-user={username}
 autologin-user-timeout=0
 """
@@ -228,6 +231,24 @@ if not pathlib.Path(os.path.join(lxqt_config_dir)).is_dir():
     os.makedirs(lxqt_config_dir, exist_ok=True)
     # Cambiar propietario del directorio
     os.chown(lxqt_config_dir, uid, gid)
+
+
+# Configuración de iconos predeterminados para LXQt
+lxqt_conf_content = """[General]
+__wer=false
+
+[Appearance]
+icon_theme=Papirus-Dark
+"""
+
+lxqt_conf_path = os.path.join(lxqt_config_dir, "lxqt.conf")
+if not pathlib.Path(os.path.join(lxqt_conf_path)).is_file():
+    with open(lxqt_conf_path, "w", encoding="utf-8") as file:
+        file.write(lxqt_conf_content)
+
+    # Cambiar propietario del archivo de sesión
+    os.chown(lxqt_config_dir, uid, gid)
+
 
 # Configuración de gestor de ventanas
 session_conf_content = """[General]
