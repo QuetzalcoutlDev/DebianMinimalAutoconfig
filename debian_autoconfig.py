@@ -315,7 +315,7 @@ time.sleep(1.0)
 
 print("Creando directorios de usuario...")
 # Ejecutar xdg-user-dirs con los privilegios del usuario para que cree las carpetas en su home
-subprocess.run(["runuser", "-u", username, "-c", "xdg-user-dirs"], check=True)
+subprocess.run(["runuser", "-l", username, "-c", "xdg-user-dirs"], check=True)
 
 time.sleep(1.0)
 
