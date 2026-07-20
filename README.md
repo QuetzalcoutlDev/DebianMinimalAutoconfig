@@ -30,4 +30,10 @@ flatpak
 libreoffice
 x11-xserver-utils
 papirus-icon-themes
+fonts-inter
+adwaita-icon-theme
+gnome-theme-extras
+adwaita-cursor-theme
+feh
+gnome-backgrounds
 ```
