@@ -113,7 +113,10 @@ packages_list = [
     "adwaita-icon-theme",
     "gnome-themes-extra",
     "nitrogen",
-    "gnome-backgrounds"
+    "gnome-backgrounds",
+    "lightdm",
+    "lightdm-gtk-greeter",
+    "lightdm-settings"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -135,32 +138,9 @@ print(f"Instalando paquetes...")
 subprocess.run(["apt", "install", "--no-install-recommends", "-y"] + packages_list, check=True)
 time.sleep(1.0)
 
-print("Configurando gestor de sesión Ly...")
-
-subprocess.run(["git", "clone", "--recurse-submodules", "https://github.com/fairyglade/ly.git"], check=True)
-
-# Ir al directorio de Ly descargado desde Git
-os.chdir("ly")
-
-# Lista de paquetes necesarios para instalar Ly
-ly_build_packages = [
-    "build-essential",
-    "libpam0g-dev",
-    "libxcb-xkb-dev", 
-    "xauth", 
-    "xserver-xorg", 
-    "brightnessctl"
-]
-
-# Instalar los paquetes que Ly necesita
-subprocess.run(["apt", "install", "-y"] + ly_build_packages, check=True)
-
-# Compilar
-subprocess.run(["make"], check=True)
-subprocess.run(["make", "install"], check=True)
-
+print("Activando LightDM...")
 # Activar Ly
-subprocess.run(["systemctl", "enable", "ly"], check=True)
+subprocess.run(["systemctl", "enable", "lightdm"], check=True)
 
 time.sleep(1.0)
 

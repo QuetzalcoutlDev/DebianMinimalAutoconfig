@@ -28,7 +28,6 @@ Del resto, el script `debian_autoconfig.py` hará el trabajo de configuración
 Este script instala los siguientes paquetes:
 ```
 fastfetch
-ly
 xorg
 icewm
 lxterminal
@@ -50,4 +49,7 @@ adwaita-icon-theme
 gnome-themes-extra
 nitrogen
 gnome-backgrounds
+lightdm
+lightdm-gtk-greeter
+lightdm-settings
 ```
