@@ -138,6 +138,12 @@ if os.getuid() != 0:
     sys.exit()
 
 print("Iniciando script de configuración...")
+
+# Asegurar que .config exista y sea del usuario antes de crear subcarpetas
+if not pathlib.Path(base_config_path).is_dir():
+    os.makedirs(base_config_path, exist_ok=True)
+    os.chown(base_config_path, uid, gid)
+
 time.sleep(1.0)
 
 # Instalar todos los paquetes antes de configurar
@@ -145,12 +151,7 @@ print(f"Instalando paquetes...")
 subprocess.run(["apt", "install", "--no-install-recommends", "-y"] + packages_list, check=True)
 time.sleep(1.0)
 
-# Asegurar que .config exista y sea del usuario antes de crear subcarpetas
-if not pathlib.Path(base_config_path).is_dir():
-    os.makedirs(base_config_path, exist_ok=True)
-os.chown(base_config_path, uid, gid)
-
-print("Configurando LightDM...")
+lightdm_conf_path = "/etc/lightdm/lightdm.conf"
 lightdm_conf = f"""[Seat:*]
 autologin-guest=false
 autologin-user={username}
@@ -158,12 +159,16 @@ autologin-user-timeout=0
 """
 
 # Escribir la configuración de autologin
-with open("/etc/lightdm/lightdm.conf", "w", encoding="utf-8") as file:
-    file.write(lightdm_conf)
-# Activar Lightdm
-subprocess.run(["systemctl", "enable", "lightdm"], check=True)
+if not pathlib.Path(lightdm_conf_path).is_file():
 
-time.sleep(1.0)
+    print("Configurando LightDM...")
+    with open(lightdm_conf_path, "w", encoding="utf-8") as file:
+        file.write(lightdm_conf)
+
+    # Activar Lightdm
+    subprocess.run(["systemctl", "enable", "lightdm"], check=True)
+
+    time.sleep(1.0)
 
 print("Configurando fastfetch...")
 # Crear directorio de fastfetch si no existe
@@ -194,29 +199,27 @@ subprocess.run(["flatpak", "install", "-y", "flathub"] + flatpak_list, check=Tru
 
 time.sleep(1.0)
 
-print("Configurando GTK...")
-
 # Crear directorio de configuración de GTK
 if not pathlib.Path(os.path.join(gtk_path)).is_dir():
+    print("Configurando GTK...")
+
     os.makedirs(gtk_path, exist_ok=True)
     os.chown(gtk_path, uid, gid)
 
 # Crear archivo de configuración para GTK
 gtk_settings_file = os.path.join(gtk_path, "settings.ini")
 if not pathlib.Path(os.path.join(gtk_settings_file)).is_file():
-
     settings_file = """[Settings]
 gtk-icon-theme-name=Papirus-Dark
 gtk-theme-name=Adwaita-dark
 gtk-font-name=Sans 10
 gtk-cursor-theme = Adwaita
     """
-
     # Guardar configuraciones en el archivo
     with open(gtk_settings_file, "w", encoding="utf-8") as file:
         file.write(settings_file)
 
-time.sleep(1.0)
+    time.sleep(1.0)
 
 print("Configurando ZRAM...")
 
@@ -234,20 +237,20 @@ subprocess.run(["systemctl", "start", "zramswap"], check=True)
 
 time.sleep(1.0)
 
-print("Configurando LXQt...")
-
 # Ruta del directorio de configuración de LXQt
 lxqt_config_dir = f"/home/{username}/.config/lxqt"
 
 if not pathlib.Path(os.path.join(lxqt_config_dir)).is_dir():
+    print("Configurando LXQt...")
+
     os.makedirs(lxqt_config_dir, exist_ok=True)
     # Cambiar propietario del directorio
     os.chown(lxqt_config_dir, uid, gid)
 
-
 # Configuración de iconos predeterminados para LXQt
 lxqt_conf_content = """[General]
 __wer=false
+theme=dark
 
 [Appearance]
 icon_theme=Papirus-Dark
@@ -303,8 +306,9 @@ os.chown(pcman_base_dir, uid, gid)
 # Configurar el icono del menú inicio
 panel_conf_path = os.path.join(lxqt_config_dir, "panel.conf")
 panel_conf_content = """[mainmenu]
-icon=/usr/share/lxqt/graphics/lxqt-logo.png
+icon=/usr/share/lxqt/graphics/helix_white_shadow.png
 ownIcon=true
+categoriesAtRight=false
 """
 
 with open(panel_conf_path, "w", encoding="utf-8") as file:
