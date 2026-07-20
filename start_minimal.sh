@@ -2,7 +2,7 @@
 
 ## Script de automatización para dejar a Debian 13 Minimal al 100% usable usando Bash y Python
 
-SCRIPT_NAME="/tmp/debian_autoconfig.py"
+SCRIPT_NAME="debian_autoconfig.py"
 GITHUB_URL="https://raw.githubusercontent.com/QuetzalcoutlDev/DebianMinimalAutoconfig/refs/heads/master/debian_autoconfig.py"
 
 # Verificar si el script se está ejecutando como root

@@ -2,7 +2,23 @@
 
 Script de automatización pensado para una Orange Pi Zero 2W pero que en general puede ser ejecutado en cualquier instalación minimal.
 
-Aunque antes que nada se debera ejecutar el script `start_minimal.sh` con sudo
+## Pasos
+
+Deberás descargar el script principal, clonando este repo de Git, por lo que en su instalación minima debes hacer:
+
+```bash
+sudo apt install git
+```
+
+Después de la instalación deberás hacer esto:
+
+```bash
+git clone https://github.com/QuetzalcoutlDev/DebianMinimalAutoconfig.git
+cd DebianMinimalAutoconfig
+```
+
+Una vez descargado, se debera ejecutar el script `start_minimal.sh` con sudo:
+
 ```bash
 sudo bash start_minimal.sh
 ```
@@ -23,17 +39,15 @@ falkon
 pcmanfm
 synaptic
 netsurf-gtk
-git
 gcc
 g++
 flatpak
 libreoffice
 x11-xserver-utils
-papirus-icon-themes
+papirus-icon-theme
 fonts-inter
 adwaita-icon-theme
-gnome-theme-extras
-adwaita-cursor-theme
-feh
+gnome-themes-extra
+nitrogen
 gnome-backgrounds
 ```
