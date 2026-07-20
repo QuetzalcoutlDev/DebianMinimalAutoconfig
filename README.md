@@ -29,7 +29,9 @@ Este script instala los siguientes paquetes:
 ```
 fastfetch
 xorg
-icewm
+lxqt-core
+openbox
+obconf
 lxterminal
 alsa-utils
 micro
@@ -47,7 +49,6 @@ papirus-icon-theme
 fonts-inter
 adwaita-icon-theme
 gnome-themes-extra
-nitrogen
 gnome-backgrounds
 lightdm
 lightdm-gtk-greeter

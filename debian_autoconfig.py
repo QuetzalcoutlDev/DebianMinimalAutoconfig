@@ -16,10 +16,6 @@ bg_path = f"/home/{username}/.config/backgrounds"
 uid = int(os.getenv("SUDO_UID"))
 gid = int(os.getenv("SUDO_GID"))
 
-# Rutas de IceWM
-ice_path = f"/home/{username}/.icewm"
-startup_file = os.path.join(ice_path, "startup")
-
 # Diccionario de configuración de fastfetch
 fastfetch_config = {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
@@ -93,7 +89,9 @@ girl_art = """
 packages_list = [
     "fastfetch",
     "xorg",
-    "icewm",
+    "lxqt-core",
+    "openbox",             
+    "obconf",
     "lxterminal",
     "alsa-utils",
     "micro",
@@ -112,7 +110,6 @@ packages_list = [
     "fonts-inter",
     "adwaita-icon-theme",
     "gnome-themes-extra",
-    "nitrogen",
     "gnome-backgrounds",
     "lightdm",
     "lightdm-gtk-greeter",
@@ -138,8 +135,16 @@ print(f"Instalando paquetes...")
 subprocess.run(["apt", "install", "--no-install-recommends", "-y"] + packages_list, check=True)
 time.sleep(1.0)
 
-print("Activando LightDM...")
-# Activar Ly
+print("Configurando LightDM...")
+lightdm_conf = f"""[Seat:*]
+autologin-user={username}
+autologin-user-timeout=0
+"""
+
+# Escribir la configuración de autologin
+with open("/etc/lightdm/lightdm.conf", "w", encoding="utf-8") as file:
+    file.write(lightdm_conf)
+# Activar Lightdm
 subprocess.run(["systemctl", "enable", "lightdm"], check=True)
 
 time.sleep(1.0)
@@ -161,9 +166,6 @@ if not pathlib.Path(os.path.join(fast_path, "config.jsonc")).is_file():
     with open(fast_path + "/config.jsonc", "w", encoding="utf-8") as file:
         json.dump(fastfetch_config, file, indent=4)
 os.chown(fast_path + "/config.jsonc", uid, gid)
-
-# Comprobar que se haya colocado el arte
-subprocess.run(["fastfetch"])
 
 time.sleep(1.0)
 
@@ -200,77 +202,6 @@ gtk-cursor-theme = Adwaita
 
 time.sleep(1.0)
 
-print("Configurando IceWM...")
-
-# Crear directorio de configuración de IceWM
-if not pathlib.Path(ice_path).is_dir():
-    os.makedirs(ice_path, exist_ok=True)
-    os.chown(ice_path, uid, gid)
-
-# Si el archivo de configuración de inicio si no esta, crearlo
-if not pathlib.Path(startup_file).is_file():
-    startup_content = """#!/bin/bash
-
-# Detectar automáticamente la pantalla conectada en tiempo de ejecución
-monitor=$(xrandr | grep ' connected' | awk '{print $1}' | head -n 1)
-
-# Ejecutar VibrantLinux en segundo plano si hay monitor activo
-if [ ! -z "$monitor" ]; then
-    flatpak run --command=vibrant-cli io.github.libvibrant.vibrantLinux "$monitor" 1.8 &
-fi
-
-# Restaurar el fondo de pantalla
-nitrogen --restore &
-    """
-    # Crear el archivo de inicio 
-    with open(startup_file, "w", encoding="utf-8") as file:
-        file.write(startup_content)
-
-    # Cambiar propietario
-    os.chown(startup_file, uid, gid)
-    # Permitir ejecución
-    os.chmod(startup_file, 0o755)
-
-time.sleep(1.0)
-
-print("Configurando Nitrogen...")
-
-nitrogen_path = f"/home/{username}/.config/nitrogen"
-
-# Crear directorio de configuración de Nitrogen
-if not pathlib.Path(nitrogen_path).is_dir():
-    os.makedirs(nitrogen_path, exist_ok=True)
-    os.chown(nitrogen_path, uid, gid)
-
-# Archivo que guarda el fondo actual
-bg_saved_file = os.path.join(nitrogen_path, "bg-saved.cfg")
-bg_saved_content = """[xin_-1]
-file=/usr/share/backgrounds/gnome/design-is-rounded-rectangles-d.jpg
-mode=4
-bgcolor=#000000
-"""
-with open(bg_saved_file, "w", encoding="utf-8") as file:
-    file.write(bg_saved_content)
-os.chown(bg_saved_file, uid, gid)
-
-# Configuración de Nitrogen por defecto
-nitrogen_cfg_file = os.path.join(nitrogen_path, "nitrogen.cfg")
-nitrogen_cfg_content = f"""[geometry]
-posx=100
-posy=100
-sizex=600
-sizey=600
-
-[nitrogen]
-view=icon
-recurse=true
-sort=alpha
-icon_caps=false
-dirs=/home/{username}/.config/backgrounds;/usr/share/backgrounds/gnome;
-"""
-with open(nitrogen_cfg_file, "w", encoding="utf-8") as file:
-    file.write(nitrogen_cfg_content)
-os.chown(nitrogen_cfg_file, uid, gid)
 
 print("Configuración terminada, reiniciando...")
 time.sleep(0.5)
