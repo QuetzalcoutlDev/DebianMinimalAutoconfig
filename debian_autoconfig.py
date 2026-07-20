@@ -21,7 +21,8 @@ fastfetch_config = {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
     "logo": {
         "type": "file",
-        "source": f"{fast_path}/logo.txt"
+        "source": f"{fast_path}/logo.txt",
+        "position": "top"
         },      
     "modules": [
         "title",
@@ -92,9 +93,8 @@ packages_list = [
     "lxqt",
     "openbox",             
     "obconf",
-    "lxterminal",
     "alsa-utils",
-    "micro",
+    "geany",
     "vlc",
     "falkon",
     "pcmanfm",
@@ -115,8 +115,7 @@ packages_list = [
     "lightdm-gtk-greeter",
     "lightdm-settings",
     "zram-tools",
-    "htop",
-    "xterm"
+    "htop"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -247,8 +246,7 @@ if not pathlib.Path(os.path.join(lxqt_conf_path)).is_file():
         file.write(lxqt_conf_content)
 
     # Cambiar propietario del archivo de sesión
-    os.chown(lxqt_config_dir, uid, gid)
-
+    os.chown(lxqt_conf_path, uid, gid)
 
 # Configuración de gestor de ventanas
 session_conf_content = """[General]
