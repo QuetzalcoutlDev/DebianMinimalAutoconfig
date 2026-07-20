@@ -115,7 +115,9 @@ packages_list = [
     "lightdm-gtk-greeter",
     "lightdm-settings",
     "zram-tools",
-    "htop"
+    "htop",
+    "xdg-user-dirs",
+    "xdg-user-dirs-gtk"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -262,6 +264,10 @@ if not pathlib.Path(os.path.join(session_conf_path)).is_file():
     os.chown(session_conf_path, uid, gid)
 
 time.sleep(1.0)
+
+print("Creando directorios de usuario...")
+# Ejecutar xdg-user-dirs-update con los privilegios del usuario para que cree las carpetas en su home
+subprocess.run(["runuser", "-u", username, "xdg-user-dirs-update"], check=True)
 
 print("Configuración terminada, reiniciando...")
 time.sleep(0.5)

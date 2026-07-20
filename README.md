@@ -53,4 +53,7 @@ lightdm
 lightdm-gtk-greeter
 lightdm-settings
 zram-tools
+htop
+xdg-user-dirs
+xdg-user-dirs-gtk
 ```
