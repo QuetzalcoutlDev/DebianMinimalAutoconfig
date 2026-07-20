@@ -60,5 +60,4 @@ gvfs
 gvfs-backends
 ntfs-3g
 fuse
-lxqt-brand-debian
 ```
