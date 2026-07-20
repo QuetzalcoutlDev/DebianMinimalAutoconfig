@@ -147,7 +147,7 @@ time.sleep(1.0)
 print("Configurando fastfetch...")
 # Crear directorio de fastfetch si no existe
 if not pathlib.Path(fast_path).is_dir():
-    os.mkdir(fast_path)
+    os.makedirs(fast_path, exist_ok=True)
     # Cambiar la propiedad de la carpeta al usuario original
     os.chown(fast_path, uid, gid)
 
@@ -180,7 +180,7 @@ print("Configurando GTK...")
 
 # Crear directorio de configuración de GTK
 if not pathlib.Path(os.path.join(gtk_path)).is_dir():
-    os.mkdir(gtk_path)
+    os.makedirs(gtk_path, exist_ok=True)
     os.chown(gtk_path, uid, gid)
 
 # Crear archivo de configuración para GTK
@@ -204,7 +204,7 @@ print("Configurando IceWM...")
 
 # Crear directorio de configuración de IceWM
 if not pathlib.Path(ice_path).is_dir():
-    os.mkdir(ice_path)
+    os.makedirs(ice_path, exist_ok=True)
     os.chown(ice_path, uid, gid)
 
 # Si el archivo de configuración de inicio si no esta, crearlo
