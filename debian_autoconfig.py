@@ -8,7 +8,9 @@ import os, subprocess, sys, time, json, pathlib
 
 # Obtener el usuario que llamo a sudo
 username = os.getenv("SUDO_USER") 
+
 ## Rutas generales
+base_config_path = f"/home/{username}/.config"
 fast_path = f"/home/{username}/.config/fastfetch"
 gtk_path = f"/home/{username}/.config/gtk-3.0"
 
@@ -117,7 +119,12 @@ packages_list = [
     "zram-tools",
     "htop",
     "xdg-user-dirs",
-    "xdg-user-dirs-gtk"
+    "xdg-user-dirs-gtk",
+    "gvfs",
+    "gvfs-backends",
+    "ntfs-3g",
+    "fuse",
+    "lxqt-brand-debian"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -138,6 +145,11 @@ time.sleep(1.0)
 print(f"Instalando paquetes...")
 subprocess.run(["apt", "install", "--no-install-recommends", "-y"] + packages_list, check=True)
 time.sleep(1.0)
+
+# Asegurar que .config exista y sea del usuario antes de crear subcarpetas
+if not pathlib.Path(base_config_path).is_dir():
+    os.makedirs(base_config_path, exist_ok=True)
+os.chown(base_config_path, uid, gid)
 
 print("Configurando LightDM...")
 lightdm_conf = f"""[Seat:*]
@@ -240,6 +252,7 @@ __wer=false
 
 [Appearance]
 icon_theme=Papirus-Dark
+theme=dark
 """
 
 lxqt_conf_path = os.path.join(lxqt_config_dir, "lxqt.conf")
@@ -263,11 +276,49 @@ if not pathlib.Path(os.path.join(session_conf_path)).is_file():
     # Cambiar propietario del archivo de sesión
     os.chown(session_conf_path, uid, gid)
 
+# Rutas para la configuración de PCManFM-Qt
+pcman_base_dir = f"/home/{username}/.config/pcmanfm-qt"
+pcman_config_dir = f"{pcman_base_dir}/lxqt"
+
+# Crear los directorios si no existen
+if not pathlib.Path(pcman_config_dir).is_dir():
+    os.makedirs(pcman_config_dir, exist_ok=True)
+
+# Contenido de configuración: Fondo por defecto y selección estricta de iconos
+pcman_conf_content = """[Desktop]
+Wallpaper=/usr/share/backgrounds/gnome/adwaita-d.jpg
+WallpaperMode=zoom
+DesktopShortcuts=Home, Trash
+"""
+
+pcman_conf_path = os.path.join(pcman_config_dir, "settings.conf")
+if not pathlib.Path(pcman_conf_path).is_file():
+    with open(pcman_conf_path, "w", encoding="utf-8") as file:
+        file.write(pcman_conf_content)
+
+# Corregir permisos
+os.chown(pcman_conf_path, uid, gid)
+os.chown(pcman_config_dir, uid, gid)
+os.chown(pcman_base_dir, uid, gid)
+
+# Configurar el icono del menú inicio
+panel_conf_path = os.path.join(lxqt_config_dir, "panel.conf")
+panel_conf_content = """[mainmenu]
+icon=/usr/share/lxqt/graphics/lxqt-logo.png
+ownIcon=true
+"""
+
+with open(panel_conf_path, "w", encoding="utf-8") as file:
+    file.write(panel_conf_content)
+os.chown(panel_conf_path, uid, gid)
+
 time.sleep(1.0)
 
 print("Creando directorios de usuario...")
-# Ejecutar xdg-user-dirs-update con los privilegios del usuario para que cree las carpetas en su home
-subprocess.run(["runuser", "-u", username, "xdg-user-dirs-update"], check=True)
+# Ejecutar xdg-user-dirs con los privilegios del usuario para que cree las carpetas en su home
+subprocess.run(["runuser", "-u", username, "-c", "xdg-user-dirs"], check=True)
+
+time.sleep(1.0)
 
 print("Configuración terminada, reiniciando...")
 time.sleep(0.5)

@@ -56,4 +56,9 @@ zram-tools
 htop
 xdg-user-dirs
 xdg-user-dirs-gtk
+gvfs
+gvfs-backends
+ntfs-3g
+fuse
+lxqt-brand-debian
 ```
