@@ -53,4 +53,5 @@ gnome-backgrounds
 lightdm
 lightdm-gtk-greeter
 lightdm-settings
+zram-tools
 ```

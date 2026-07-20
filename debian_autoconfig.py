@@ -113,7 +113,8 @@ packages_list = [
     "gnome-backgrounds",
     "lightdm",
     "lightdm-gtk-greeter",
-    "lightdm-settings"
+    "lightdm-settings",
+    "zram-tools"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -202,6 +203,46 @@ gtk-cursor-theme = Adwaita
 
 time.sleep(1.0)
 
+print("Configurando ZRAM...")
+
+# Configuración para zram
+zram_conf = """PERCENT=50
+ALGO=zstd
+PRIORITY=100
+"""
+with open("/etc/default/zramswap", "w", encoding="utf-8") as file:
+    file.write(zram_conf)
+
+# Habilitar e iniciar el servicio zramswap
+subprocess.run(["systemctl", "enable", "zramswap"], check=True)
+subprocess.run(["systemctl", "start", "zramswap"], check=True)
+
+time.sleep(1.0)
+
+print("Configurando LXQt...")
+
+# Ruta del directorio de configuración de LXQt
+lxqt_config_dir = f"/home/{username}/.config/lxqt"
+
+if not pathlib.Path(os.path.join(lxqt_config_dir)).is_dir():
+    os.makedirs(lxqt_config_dir, exist_ok=True)
+    # Cambiar propietario del directorio
+    os.chown(lxqt_config_dir, uid, gid)
+
+# Configuración de gestor de ventanas
+session_conf_content = """[General]
+window_manager=openbox
+"""
+
+session_conf_path = os.path.join(lxqt_config_dir, "session.conf")
+if not pathlib.Path(os.path.join(session_conf_path)).is_file():
+    with open(session_conf_path, "w", encoding="utf-8") as file:
+        file.write(session_conf_content)
+
+    # Cambiar propietario del archivo de sesión
+    os.chown(session_conf_path, uid, gid)
+
+time.sleep(1.0)
 
 print("Configuración terminada, reiniciando...")
 time.sleep(0.5)
