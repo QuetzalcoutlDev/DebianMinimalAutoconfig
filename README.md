@@ -29,12 +29,11 @@ Este script instala los siguientes paquetes:
 ```
 fastfetch
 xorg
-lxqt-core
+lxqt
 openbox
 obconf
-lxterminal
 alsa-utils
-micro
+geany
 vlc
 falkon
 pcmanfm
