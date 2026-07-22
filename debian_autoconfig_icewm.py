@@ -4,7 +4,7 @@
 
 ### versión 1.0
 
-import os, subprocess, sys, time, json, pathlib
+import os, subprocess, sys, time, json, pathlib, platform
 
 # Obtener el usuario que llamo a sudo
 username = os.getenv("SUDO_USER") 
@@ -136,8 +136,7 @@ ly_packages = [
     "libxcb-xkb-dev", 
     "xauth", 
     "xserver-xorg", 
-    "brightnessctl",
-    "xcb"
+    "brightnessctl"
 ]
 
 ## Cerrar el script si no esta en modo superusuario
@@ -228,16 +227,19 @@ time.sleep(1.0)
 print("Configurando Ly...")
 time.sleep(1.0)
 
-zig_url = "https://ziglang.org/download/0.16.0/zig-aarch64-linux-0.16.0.tar.xz"
+arch_name = platform.machine()
+zig_url = f"https://ziglang.org/download/0.16.0/zig-{arch_name}-linux-0.16.0.tar.xz"
 
-print("Descargando Zig...")
-subprocess.run(["wget", "-qO", "/tmp/zig.tar.xz", zig_url], check=True)
-print("Descomprimiendo Zig...")
-subprocess.run(["tar", "-xf", "/tmp/zig.tar.xz", "-C", "/opt/"], check=True)
+# Descargar Zig si no existe
+if not pathlib.Path("/tmp/zig.tar.xz").is_file():
+    print("Descargando Zig...")
+    subprocess.run(["wget", "-qO", "/tmp/zig.tar.xz", zig_url], check=True)
+    print("Descomprimiendo Zig...")
+    subprocess.run(["tar", "-xf", "/tmp/zig.tar.xz", "-C", "/opt/"], check=True)
 
 # Crear enlace simbólico para usar 'zig'
 print("Creando enlace a Zig...")
-subprocess.run(["ln", "-sf", "/opt/zig-aarch64-linux-0.16.0/zig", "/usr/local/bin/zig"], check=True)
+subprocess.run(["ln", "-sf", f"/opt/zig-{arch_name}-linux-0.16.0/zig", "/bin/zig"], check=True)
 
 ly_repo_dir = "/tmp/ly_build"
 

@@ -26,14 +26,14 @@ sudo bash start_minimal.sh
 Del resto, el script `debian_autoconfig.py` hará el trabajo de configuración
 
 Este script instala los siguientes paquetes (Algunos se instalan segun si se escoje lxqt o icewm):
-```
+```bash
 fastfetch
 xorg
 lxqt
 icewm
-lxterminal
+lxterminal  # Solo IceWm
 openbox
-obconf
+obconf # Solo LXQt
 alsa-utils
 geany
 vlc
@@ -51,9 +51,9 @@ fonts-inter
 adwaita-icon-theme
 gnome-themes-extra
 gnome-backgrounds
-lightdm
-lightdm-gtk-greeter
-lightdm-settings
+lightdm # Solo LXQt
+lightdm-gtk-greeter # Solo LXQt
+lightdm-settings # Solo LXQt
 zram-tools
 htop
 xdg-user-dirs
@@ -62,5 +62,7 @@ gvfs
 gvfs-backends
 ntfs-3g
 fuse
-nitrogen
+nitrogen  # Solo IceWm
+zig # Solo IceWm
+ly # Solo IceWm y se compila
 ```
