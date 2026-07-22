@@ -255,7 +255,8 @@ subprocess.run(["zig", "build", "installexe", "-Dinit_system=systemd"], cwd=ly_r
 
 print("Configurando Ly...")
 
-subprocess.run(["systemctl", "enable", "ly.service"], check=True)
+subprocess.run(["systemctl", "disable", "getty@tty2.service"], check=True)
+subprocess.run(["systemctl", "enable", "ly@tty2.service"], check=True)
 
 time.sleep(1.0)
 
