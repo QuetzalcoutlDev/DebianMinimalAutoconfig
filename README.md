@@ -25,11 +25,13 @@ sudo bash start_minimal.sh
 
 Del resto, el script `debian_autoconfig.py` hará el trabajo de configuración
 
-Este script instala los siguientes paquetes:
+Este script instala los siguientes paquetes (Algunos se instalan segun si se escoje lxqt o icewm):
 ```
 fastfetch
 xorg
 lxqt
+icewm
+lxterminal
 openbox
 obconf
 alsa-utils
@@ -60,4 +62,5 @@ gvfs
 gvfs-backends
 ntfs-3g
 fuse
+nitrogen
 ```
