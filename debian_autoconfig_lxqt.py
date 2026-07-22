@@ -2,7 +2,7 @@
 #######  Script de automatización en Python, para Debian 13 Minimal  #######
 #############################################################################
 
-### versión 1.0
+### versión 1.2
 
 import os, subprocess, sys, time, json, pathlib
 

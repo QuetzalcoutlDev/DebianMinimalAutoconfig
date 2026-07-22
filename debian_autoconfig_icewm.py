@@ -2,7 +2,7 @@
 #######  Script de automatización en Python, para Debian 13 Minimal  #######
 #############################################################################
 
-### versión 1.0
+### versión 1.2
 
 import os, subprocess, sys, time, json, pathlib, platform
 
@@ -136,7 +136,10 @@ ly_packages = [
     "libxcb-xkb-dev", 
     "xauth", 
     "xserver-xorg", 
-    "brightnessctl"
+    "brightnessctl",
+    "curl",
+    "ca-certificates",
+    "xserver-xorg-legacy"
 ]
 
 ## Cerrar el script si no esta en modo superusuario
@@ -230,6 +233,9 @@ time.sleep(1.0)
 arch_name = platform.machine()
 zig_url = f"https://ziglang.org/download/0.16.0/zig-{arch_name}-linux-0.16.0.tar.xz"
 
+print(f"Instalando dependencias de Ly...")
+subprocess.run(["apt", "install", "-y"] + ly_packages, check=True)
+
 # Descargar Zig si no existe
 if not pathlib.Path("/tmp/zig.tar.xz").is_file():
     print("Descargando Zig...")
@@ -243,9 +249,6 @@ subprocess.run(["ln", "-sf", f"/opt/zig-{arch_name}-linux-0.16.0/zig", "/bin/zig
 
 ly_repo_dir = "/tmp/ly_build"
 
-print(f"Instalando dependencias de Ly...")
-subprocess.run(["apt", "install", "-y"] + ly_packages, check=True)
-
 if not pathlib.Path(ly_repo_dir).is_dir():
     subprocess.run(["git", "clone", "--recurse-submodules", "https://github.com/fairyglade/ly", ly_repo_dir], check=True)
 
@@ -255,8 +258,9 @@ subprocess.run(["zig", "build", "installexe", "-Dinit_system=systemd"], cwd=ly_r
 
 print("Configurando Ly...")
 
-subprocess.run(["systemctl", "disable", "getty@tty2.service"], check=True)
 subprocess.run(["systemctl", "enable", "ly@tty2.service"], check=True)
+subprocess.run(["systemctl", "disable", "getty@tty2.service"], check=True)
+subprocess.run(["ln", "-sf", "/sbin/agetty", "/usr/bin/agetty"], check=True)
 
 time.sleep(1.0)
 
