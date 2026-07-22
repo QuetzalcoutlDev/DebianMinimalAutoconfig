@@ -119,7 +119,11 @@ packages_list = [
     "gvfs-backends",
     "ntfs-3g",
     "fuse",
-    "nitrogen"
+    "nitrogen",
+    "dunst",
+    "network-manager",
+    "network-manager-gnome",
+    "nm-tray"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -301,6 +305,11 @@ startup_file = os.path.join(icewm_dir, "startup")
 startup_content = """#!/bin/bash
 # Restaurar el fondo de pantalla
 nitrogen --restore &
+
+/usr/bin/dunst &
+volumeicon &
+nm-applet &
+
 """
 with open(startup_file, "w", encoding="utf-8") as file:
     file.write(startup_content)

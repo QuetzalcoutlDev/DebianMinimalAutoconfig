@@ -65,4 +65,8 @@ fuse
 nitrogen  # Solo IceWm
 zig # Solo IceWm
 ly # Solo IceWm y se compila
+dunst # Solo IceWm 
+network-manager # Solo IceWm
+network-manager-gnome # Solo IceWm
+nm-tray # Solo IceWm
 ```
