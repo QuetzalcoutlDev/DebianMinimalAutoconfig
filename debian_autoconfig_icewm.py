@@ -111,7 +111,7 @@ packages_list = [
     "adwaita-icon-theme",
     "gnome-themes-extra",
     "gnome-backgrounds",
-    "zram-tools",
+    #"zram-tools",
     "htop",
     "xdg-user-dirs",
     "xdg-user-dirs-gtk",
@@ -215,21 +215,23 @@ gtk-cursor-theme = Adwaita
 
     time.sleep(1.0)
 
-print("Configurando ZRAM...")
-
 # Configuración para zram
 zram_conf = """PERCENT=50
 ALGO=zstd
 PRIORITY=100
 """
+
+"""
+print("Configurando ZRAM...")
+
 with open("/etc/default/zramswap", "w", encoding="utf-8") as file:
     file.write(zram_conf)
 
 # Habilitar e iniciar el servicio zramswap
-subprocess.run(["systemctl", "enable", "zramswap"], check=True)
-subprocess.run(["systemctl", "start", "zramswap"], check=True)
+subprocess.run(["systemctl", "restart", "zramswap.service"], check=True)
 
 time.sleep(1.0)
+"""
 
 print("Configurando Ly...")
 time.sleep(1.0)
