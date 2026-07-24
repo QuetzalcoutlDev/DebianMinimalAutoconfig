@@ -82,4 +82,5 @@ qt6ct # Solo IceWm
 qt-style-kvantum # Solo IceWm
 qt-style-kvantum-themes # Solo IceWm
 kdeconnect
+qt6-svg-plugins
 ```

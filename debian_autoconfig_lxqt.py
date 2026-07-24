@@ -128,7 +128,8 @@ packages_list = [
     "pavucontrol",
     "lxappearance",
     "kdeconnect",
-    "udisks2"
+    "udisks2",
+    "qt6-svg-plugins"
 ]
 
 # Lista de paquetes flatpak a instalar

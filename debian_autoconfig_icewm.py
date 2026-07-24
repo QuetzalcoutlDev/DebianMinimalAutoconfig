@@ -137,7 +137,10 @@ packages_list = [
     "qt-style-kvantum",
     "qt-style-kvantum-themes",
     "kdeconnect",
-    "micro"
+    "micro",
+    "librsvg2-common",
+    "shared-mime-info",
+    "qt6-svg-plugins"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -415,6 +418,19 @@ ping_path = shutil.which("ping") or "/bin/ping"
 
 if pathlib.Path(ping_path).exists():
     subprocess.run(["chmod", "u+s", ping_path], check=False)
+
+print("Descargando Papirus Folders...")
+# Descargar el script de instalación de Papirus
+script_download = subprocess.run(
+    ["wget", "-qO-", "https://raw.githubusercontent.com/PapirusDevelopmentTeam/papirus-folders/master/install.sh"],
+    capture_output=True,
+    text=True,
+    check=True
+)
+
+print("Instalando Papirus Folders...")
+# Ejecutar el script descargado con sh
+subprocess.run(["sh"], input=script_download.stdout, text=True, check=True)
 
 time.sleep(0.5)
 print("Configuración terminada, reiniciando...")
