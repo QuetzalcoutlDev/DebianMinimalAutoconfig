@@ -4,7 +4,7 @@
 
 ### versión 1.2
 
-import os, subprocess, sys, time, json, pathlib, platform
+import os, subprocess, sys, time, json, pathlib, platform, shutil
 
 # Obtener el usuario que llamo a sudo
 username = os.getenv("SUDO_USER") 
@@ -136,7 +136,8 @@ packages_list = [
     "qt6ct",
     "qt-style-kvantum",
     "qt-style-kvantum-themes",
-    "kdeconnect"
+    "kdeconnect",
+    "micro"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -407,7 +408,15 @@ time.sleep(1.0)
 print("Creando directorios de usuario...")
 # Ejecutar xdg-user-dirs con los privilegios del usuario para que cree las carpetas en su home
 subprocess.run(["runuser", "-l", username, "-c", "xdg-user-dirs-update"], check=True)
+time.sleep(0.5)
 
+print("Ultimos ajustes....")
+ping_path = shutil.which("ping") or "/bin/ping"
+
+if pathlib.Path(ping_path).exists():
+    subprocess.run(["chmod", "u+s", ping_path], check=False)
+
+time.sleep(0.5)
 print("Configuración terminada, reiniciando...")
 time.sleep(0.5)
 
