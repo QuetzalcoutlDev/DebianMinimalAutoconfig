@@ -123,7 +123,20 @@ packages_list = [
     "dunst",
     "network-manager",
     "network-manager-gnome",
-    "nm-tray"
+    "nm-tray",
+    "volumeicon-alsa",
+    "lxappearance",
+    "nomacs",
+    "udisks2",
+    "pulseaudio",
+    "pavucontrol",
+    "flameshot",
+    "qt5ct",
+    "mpv",
+    "qt6ct",
+    "qt-style-kvantum",
+    "qt-style-kvantum-themes",
+    "kdeconnect"
 ]
 
 # Lista de paquetes flatpak a instalar
@@ -215,6 +228,8 @@ gtk-cursor-theme = Adwaita
 
     time.sleep(1.0)
 
+os.chown(gtk_settings_file, uid, gid)
+
 # Configuración para zram
 zram_conf = """PERCENT=50
 ALGO=zstd
@@ -258,6 +273,14 @@ ly_repo_dir = "/tmp/ly_build"
 if not pathlib.Path(ly_repo_dir).is_dir():
     subprocess.run(["git", "clone", "--recurse-submodules", "https://github.com/fairyglade/ly", ly_repo_dir], check=True)
 
+print("Creando Swap temporal...")
+subprocess.run(["fallocate", "-l", "1G", "/swapfile"], check=True)
+subprocess.run(["chmod", "600", "/swapfile"], check=True)
+subprocess.run(["mkswap", "/swapfile"], check=True)
+subprocess.run(["swapon", "/swapfile"], check=True)
+
+print("Compilando Ly...")
+
 # Compilar Ly usando Zig y generar el servicio systemd
 subprocess.run(["zig", "build"], cwd=ly_repo_dir, check=True)
 subprocess.run(["zig", "build", "installexe", "-Dinit_system=systemd"], cwd=ly_repo_dir, check=True)
@@ -267,6 +290,11 @@ print("Configurando Ly...")
 subprocess.run(["systemctl", "enable", "ly@tty2.service"], check=True)
 subprocess.run(["systemctl", "disable", "getty@tty2.service"], check=True)
 subprocess.run(["ln", "-sf", "/sbin/agetty", "/usr/bin/agetty"], check=True)
+
+print("Limpiando Swap temporal...")
+
+subprocess.run(["swapoff", "/swapfile"], check=False)
+subprocess.run(["rm", "-f", "/swapfile"], check=True)
 
 time.sleep(1.0)
 
@@ -305,6 +333,9 @@ if not pathlib.Path(icewm_dir).is_dir():
 # Script de inicio de IceWM
 startup_file = os.path.join(icewm_dir, "startup")
 startup_content = """#!/bin/bash
+
+export QT_QPA_PLATFORMTHEME="qt5ct"
+
 # Restaurar el fondo de pantalla
 nitrogen --restore &
 
@@ -313,6 +344,7 @@ volumeicon &
 nm-applet &
 
 """
+
 with open(startup_file, "w", encoding="utf-8") as file:
     file.write(startup_content)
 
@@ -320,13 +352,62 @@ with open(startup_file, "w", encoding="utf-8") as file:
 os.chmod(startup_file, 0o755)
 os.chown(startup_file, uid, gid)
 
+ice_keys = os.path.join(icewm_dir, "keys")
+ice_keys_content = """
+key "Super+Shift+s" flameshot gui
+"""
+if not pathlib.Path(ice_keys).is_file():
+    # Escribir el archivo keys
+    with open(ice_keys, "w", encoding="utf-8") as file: 
+        file.write(ice_keys_content)
+
+    # cambiar el propietario
+    os.chown(ice_keys, uid, gid)
+
+time.sleep(1.0)
+
+print("Configurando PCManFM...")
+
+# Rutas de configuracion para la entrada personalizada del menu contextual
+local_paths = [
+    f"/home/{username}/.local",
+    f"/home/{username}/.local/share",
+    f"/home/{username}/.local/share/file-manager",
+    f"/home/{username}/.local/share/file-manager/actions"
+]
+
+# Crear las carpetas
+for p in local_paths:
+    if not pathlib.Path(p).is_dir():
+        os.makedirs(p, exist_ok=True)
+        os.chown(p, uid, gid)
+
+# Contenido del archivo de KDE Connect
+kdeconnect_action_file = f"{local_paths[-1]}/kdeconnect_share.desktop"
+kdeconnect_action_content = """[Desktop Entry]
+Type=Action
+Name=Send via KDE Connect
+Icon=kdeconnect
+Profiles=kdeconnect_share;
+
+[X-Action-Profile kdeconnect_share]
+MimeTypes=all/all;
+Exec=kdeconnect-cli -a --share %f
+"""
+
+# Escribir archivo
+with open(kdeconnect_action_file, "w", encoding="utf-8") as file:
+    file.write(kdeconnect_action_content)
+
+# Cambiar propietario
+os.chown(kdeconnect_action_file, uid, gid)
+
 time.sleep(1.0)
 
 print("Creando directorios de usuario...")
 # Ejecutar xdg-user-dirs con los privilegios del usuario para que cree las carpetas en su home
 subprocess.run(["runuser", "-l", username, "-c", "xdg-user-dirs-update"], check=True)
 
-time.sleep(1.0)
 print("Configuración terminada, reiniciando...")
 time.sleep(0.5)
 

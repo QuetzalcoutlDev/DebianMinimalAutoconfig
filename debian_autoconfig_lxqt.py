@@ -123,7 +123,12 @@ packages_list = [
     "gvfs",
     "gvfs-backends",
     "ntfs-3g",
-    "fuse"
+    "fuse",
+    "pulseaudio",
+    "pavucontrol",
+    "lxappearance",
+    "kdeconnect",
+    "udisks2"
 ]
 
 # Lista de paquetes flatpak a instalar

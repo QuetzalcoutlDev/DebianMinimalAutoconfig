@@ -69,4 +69,17 @@ dunst # Solo IceWm
 network-manager # Solo IceWm
 network-manager-gnome # Solo IceWm
 nm-tray # Solo IceWm
+volumeicon-alsa # Solo IceWm
+lxappearance
+nomacs # Solo IceWm
+udisks2 
+pulseaudio
+pavucontrol
+flameshot # Solo IceWm
+qt5ct # Solo IceWm
+mpv 
+qt6ct # Solo IceWm
+qt-style-kvantum # Solo IceWm
+qt-style-kvantum-themes # Solo IceWm
+kdeconnect
 ```
