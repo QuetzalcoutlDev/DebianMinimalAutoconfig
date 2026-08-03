@@ -118,14 +118,13 @@ packages_list = [
     "gnumeric",
     "upower",
     "bluez",           
-    "bluez-utils",
+    "bluez-tools",
     "xdg-utils",
     "xdg-desktop-portal",
     "dbus-x11",
     "libfile-mimeinfo-perl",
     "bluez-alsa-utils",
-    "bluez-firmware",
-    "cpufrequtils"
+    "bluez-firmware"
 ]
 
 # Lista de paquetes flatpak a instalar
