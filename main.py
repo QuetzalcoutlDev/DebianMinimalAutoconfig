@@ -75,3 +75,5 @@ sleep(1.0)
 
 print("Configuración terminada, reiniciando...")
 sleep(0.5)
+
+subprocess.run(["reboot"])
