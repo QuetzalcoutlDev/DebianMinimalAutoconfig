@@ -61,6 +61,8 @@ subprocess.run(["flatpak", "install", "-y", "--no-related", "flathub"] + autocon
 
 sleep(1.0)
 
+autoconfig.ly_install()
+
 # Instalación de los entornos
 match desktop_id:
     case "0": autoconfig.lxqt_install()

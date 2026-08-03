@@ -134,18 +134,69 @@ flatpak_list = [
     #"it.mijorus.gearlever"
 ]
 
-# Dependencias de Ly
-ly_packages = [
-    "build-essential", 
-    "libpam0g-dev",
-    "libxcb-xkb-dev", 
-    "xauth", 
-    "xserver-xorg", 
-    "brightnessctl",
-    "curl",
-    "ca-certificates",
-    "xserver-xorg-legacy"
-]
+def ly_install():
+    # Dependencias de Ly
+    ly_packages = [
+        "build-essential", 
+        "libpam0g-dev",
+        "libxcb-xkb-dev", 
+        "xauth", 
+        "xserver-xorg", 
+        "brightnessctl",
+        "curl",
+        "ca-certificates",
+        "xserver-xorg-legacy"
+    ]
+
+    print("Configurando Ly...")
+    sleep(1.0)
+
+    arch_name = platform.machine()
+    zig_url = f"https://ziglang.org/download/0.16.0/zig-{arch_name}-linux-0.16.0.tar.xz"
+
+    print(f"Instalando dependencias de Ly...")
+    subprocess.run(["apt", "install", "-y"] + ly_packages, check=True)
+
+    # Descargar Zig si no existe
+    if not pathlib.Path("/tmp/zig.tar.xz").is_file():
+        print("Descargando Zig...")
+        subprocess.run(["wget", "-qO", "/tmp/zig.tar.xz", zig_url], check=True)
+        print("Descomprimiendo Zig...")
+        subprocess.run(["tar", "-xf", "/tmp/zig.tar.xz", "-C", "/opt/"], check=True)
+
+    # Crear enlace simbólico para usar 'zig'
+    print("Creando enlace a Zig...")
+    subprocess.run(["ln", "-sf", f"/opt/zig-{arch_name}-linux-0.16.0/zig", "/bin/zig"], check=True)
+
+    ly_repo_dir = "/tmp/ly_build"
+
+    if not pathlib.Path(ly_repo_dir).is_dir():
+        subprocess.run(["git", "clone", "--recurse-submodules", "https://github.com/fairyglade/ly", ly_repo_dir], check=True)
+
+    print("Creando Swap temporal...")
+    subprocess.run(["fallocate", "-l", "1G", "/swapfile"], check=True)
+    subprocess.run(["chmod", "600", "/swapfile"], check=True)
+    subprocess.run(["mkswap", "/swapfile"], check=True)
+    subprocess.run(["swapon", "/swapfile"], check=True)
+
+    print("Compilando Ly...")
+
+    # Compilar Ly usando Zig y generar el servicio systemd
+    subprocess.run(["zig", "build"], cwd=ly_repo_dir, check=True)
+    subprocess.run(["zig", "build", "installexe", "-Dinit_system=systemd"], cwd=ly_repo_dir, check=True)
+
+    print("Configurando Ly...")
+
+    subprocess.run(["systemctl", "enable", "ly@tty2.service"], check=True)
+    subprocess.run(["systemctl", "disable", "getty@tty2.service"], check=True)
+    subprocess.run(["ln", "-sf", "/sbin/agetty", "/usr/bin/agetty"], check=True)
+
+    print("Limpiando Swap temporal...")
+
+    subprocess.run(["swapoff", "/swapfile"], check=False)
+    subprocess.run(["rm", "-f", "/swapfile"], check=True)
+
+    sleep(1.0)
 
 # Configuración para zram (Por ahora no es necesario)
 def zram_settings():
@@ -223,59 +274,9 @@ def ice_install():
     ]
 
     print("Instalando dependencias para IceWM...")
-    subprocess.run(["apt", "install", "-y"] + packages + ly_packages, check=True)
+    subprocess.run(["apt", "install", "-y"] + packages, check=True)
 
     gtk_settings()
-
-    print("Configurando Ly...")
-    sleep(1.0)
-
-    arch_name = platform.machine()
-    zig_url = f"https://ziglang.org/download/0.16.0/zig-{arch_name}-linux-0.16.0.tar.xz"
-
-    print(f"Instalando dependencias de Ly...")
-    subprocess.run(["apt", "install", "-y"] + ly_packages, check=True)
-
-    # Descargar Zig si no existe
-    if not pathlib.Path("/tmp/zig.tar.xz").is_file():
-        print("Descargando Zig...")
-        subprocess.run(["wget", "-qO", "/tmp/zig.tar.xz", zig_url], check=True)
-        print("Descomprimiendo Zig...")
-        subprocess.run(["tar", "-xf", "/tmp/zig.tar.xz", "-C", "/opt/"], check=True)
-
-    # Crear enlace simbólico para usar 'zig'
-    print("Creando enlace a Zig...")
-    subprocess.run(["ln", "-sf", f"/opt/zig-{arch_name}-linux-0.16.0/zig", "/bin/zig"], check=True)
-
-    ly_repo_dir = "/tmp/ly_build"
-
-    if not pathlib.Path(ly_repo_dir).is_dir():
-        subprocess.run(["git", "clone", "--recurse-submodules", "https://github.com/fairyglade/ly", ly_repo_dir], check=True)
-
-    print("Creando Swap temporal...")
-    subprocess.run(["fallocate", "-l", "1G", "/swapfile"], check=True)
-    subprocess.run(["chmod", "600", "/swapfile"], check=True)
-    subprocess.run(["mkswap", "/swapfile"], check=True)
-    subprocess.run(["swapon", "/swapfile"], check=True)
-
-    print("Compilando Ly...")
-
-    # Compilar Ly usando Zig y generar el servicio systemd
-    subprocess.run(["zig", "build"], cwd=ly_repo_dir, check=True)
-    subprocess.run(["zig", "build", "installexe", "-Dinit_system=systemd"], cwd=ly_repo_dir, check=True)
-
-    print("Configurando Ly...")
-
-    subprocess.run(["systemctl", "enable", "ly@tty2.service"], check=True)
-    subprocess.run(["systemctl", "disable", "getty@tty2.service"], check=True)
-    subprocess.run(["ln", "-sf", "/sbin/agetty", "/usr/bin/agetty"], check=True)
-
-    print("Limpiando Swap temporal...")
-
-    subprocess.run(["swapoff", "/swapfile"], check=False)
-    subprocess.run(["rm", "-f", "/swapfile"], check=True)
-
-    sleep(1.0)
 
     print("Configurando Nitrogen...")
     nitrogen_dir = f"{base_config_path}/nitrogen"
@@ -381,9 +382,6 @@ def xfce_install():
         "xdg-desktop-portal-gtk",
         "xdg-user-dirs-gtk",
         "arc-theme",
-        "lightdm",
-        "lightdm-gtk-greeter",
-        "lightdm-settings",
         "network-manager-gnome"
     ]
 
@@ -399,9 +397,6 @@ def lxqt_install():
         "lxqt",
         "openbox",             
         "obconf",
-        "lightdm",
-        "lightdm-gtk-greeter",
-        "lightdm-settings",
         "xdg-desktop-portal-lxqt",
         "nm-tray"
     ]
